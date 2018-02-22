@@ -1,18 +1,23 @@
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
+import static java.lang.Math.*;
+
 public class Main {
+    public static HashMap<Integer, Output> outputs = new HashMap<>();
 
     public static void main(String[] args) {
-        final int numThreads = 32;
+        long globalInit = System.currentTimeMillis();
+        final int numThreads = Integer.parseInt(args[0]);
 
         List<Thread> threadList = new ArrayList<>(numThreads);
 
         for (int i = 0; i < numThreads; ++i) {
             threadList.add(i, new Thread(new OneThread(), Integer.toString(i)));
             threadList.get(i).start();
+            Main.outputs.put(i, new Output(System.currentTimeMillis()));
         }
-        //Random print of the threads.
 
         //For each thread, wait until is ended.
         //Then, this foreach ends when every thread is ended.
@@ -27,15 +32,60 @@ public class Main {
         }
 
         /*
-        1d. Al usar la función join, no hace falta un while que espere a que el mensaje sea false, como en el ejecicio
-            anterior. Esta función ya propia de la clase Thread, espera hasta que el Thread finalice antes de devolverle
-            la ejecución al Thread que la llamó.
-            Por ello, el resultado visual es el mismo (el bucle espera a que acaben todos los hilos), y el mensaje final
-            se mostrará una vez todos los hilos hayan acabado.
+        //Printing each Thread timing
+        for (int i = 0; i < numThreads; i++) {
+            System.out.println("Thread " + i + " - "+outputs.get(i).toString());
+        }
+        */
 
-            De todos modos el orden en que se muestran los "Hello world" sigue siendo aleatorio, como debe de ser.
-         */
+        //System.out.println("Program of exercise 3 has terminated.");
 
-        System.out.println("Program of exercise 4 has terminated."); //Printed as final message as it should.
+        //Prints number of threads and total time needed (for statistics)
+        System.out.println(args[0] + " " + (System.currentTimeMillis() - globalInit));
+    }
+}
+
+//Custom Thread class implementing Runnable
+class OneThread implements Runnable {
+
+    public void run() { //Code going to be executed by the thread.
+        long init = System.currentTimeMillis();
+
+        for (int i = 0; i < 1000000; i++) {
+            double d = tan(atan(tan(atan(tan(atan(tan(atan(tan(atan(123456789.123456789))))))))));
+            cbrt(d);
+        }
+
+        long end = System.currentTimeMillis();
+
+        //Store values into the object
+        Main.outputs.get(Integer.parseInt(Thread.currentThread().getName())).setStarted(init);
+        Main.outputs.get(Integer.parseInt(Thread.currentThread().getName())).setEnded(end);
+    }
+}
+
+//Class used for storing each Thread timing
+class Output {
+    private long queued, started, ended;
+
+    Output(long queued) {
+        this.queued = queued;
+        this.started = 0;
+        this.ended = 0;
+    }
+
+    public void setStarted(long started) {
+        this.started = started;
+    }
+
+    public void setEnded(long ended) {
+        this.ended = ended;
+    }
+
+    @Override
+    public String toString() {
+        String info = "queued: " + queued + " - started: " + started + " - ended: " + ended;
+        String results = "\n\tq-s: " + (started - queued) + " | s-e: " + (ended - started) + " | s-q: " + (ended - queued);
+        return info + results;
     }
 }
