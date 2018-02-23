@@ -6,10 +6,11 @@ import static java.lang.Math.*;
 
 public class Main {
     public static HashMap<Integer, Output> outputs = new HashMap<>();
+    public static int numThreads = 0;
 
     public static void main(String[] args) {
         long globalInit = System.currentTimeMillis();
-        final int numThreads = Integer.parseInt(args[0]);
+        numThreads = Integer.parseInt(args[0]);
 
         List<Thread> threadList = new ArrayList<>(numThreads);
 
@@ -26,22 +27,25 @@ public class Main {
                 t.join();
                 //join() is a function that waits until Thread t is finished.
                 //Then, this loop will wait until each thread has ended.
+
+                long end = System.currentTimeMillis();
+                Main.outputs.get(Integer.parseInt(t.getName())).setEnded(end);
+
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
 
-        /*
-        //Printing each Thread timing
+        //Printing each Thread timing for evaluation
         for (int i = 0; i < numThreads; i++) {
-            System.out.println("Thread " + i + " - "+outputs.get(i).toString());
+            System.out.println("Thread " + i + " - " + outputs.get(i).toString());
         }
-        */
-
-        //System.out.println("Program of exercise 3 has terminated.");
 
         //Prints number of threads and total time needed (for statistics)
-        System.out.println(args[0] + " " + (System.currentTimeMillis() - globalInit));
+        System.out.println("\n" + args[0] + " threads, total time: " + (System.currentTimeMillis() - globalInit));
+
+        //Print final message
+        System.out.println("\nProgram of exercise 3 has terminated.");
     }
 }
 
@@ -49,18 +53,15 @@ public class Main {
 class OneThread implements Runnable {
 
     public void run() { //Code going to be executed by the thread.
+        //Store values into the object
         long init = System.currentTimeMillis();
 
-        for (int i = 0; i < 1000000; i++) {
+        for (int i = 0; i < 1000000 / Main.numThreads; i++) {
             double d = tan(atan(tan(atan(tan(atan(tan(atan(tan(atan(123456789.123456789))))))))));
             cbrt(d);
         }
 
-        long end = System.currentTimeMillis();
-
-        //Store values into the object
         Main.outputs.get(Integer.parseInt(Thread.currentThread().getName())).setStarted(init);
-        Main.outputs.get(Integer.parseInt(Thread.currentThread().getName())).setEnded(end);
     }
 }
 
